@@ -199,6 +199,13 @@ p {
   opacity: 0.95;
 }
 
+.navbar-brand-logo {
+  height: 26px;
+  width: auto;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
 #navbar ul {
   margin: 0;
 }
