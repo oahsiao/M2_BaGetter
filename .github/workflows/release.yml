@@ -108,6 +108,7 @@ jobs:
           commit: ${{ github.sha }}
           name: ${{ needs.version.outputs.RELEASE_VERSION }}
           tag: ${{ needs.version.outputs.RELEASE_TAG }}
+          allow_updates: true
           prerelease: ${{ contains(needs.version.outputs.RELEASE_VERSION, '-') }}
 
   release_docker_image:
