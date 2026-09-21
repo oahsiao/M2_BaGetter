@@ -10,6 +10,10 @@ public sealed class LdapAuthenticationOptions
 
     public string BaseDn { get; set; }
 
+    public string UserSearchBase { get; set; }
+
+    public string UserSearchFilter { get; set; }
+
     public string BindDn { get; set; }
 
     public string BindPassword { get; set; }

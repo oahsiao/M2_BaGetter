@@ -55,7 +55,9 @@ public sealed class LdapCredentialValidator : INugetCredentialValidator
 
             var resolvedUsername = !string.IsNullOrWhiteSpace(userEntry.SamAccountName)
                 ? userEntry.SamAccountName
-                : username;
+                : !string.IsNullOrWhiteSpace(userEntry.Uid)
+                    ? userEntry.Uid
+                    : username;
 
             return Task.FromResult(new NugetCredentialValidationResult(resolvedUsername, userEntry.GroupNames));
         }
@@ -89,11 +91,14 @@ public sealed class LdapCredentialValidator : INugetCredentialValidator
             return null;
         }
 
+        var searchBase = string.IsNullOrWhiteSpace(ldap.UserSearchBase) ? ldap.BaseDn : ldap.UserSearchBase;
+        var searchFilter = BuildSearchFilter(ldap, identifier);
+
         var request = new System.DirectoryServices.Protocols.SearchRequest(
-            ldap.BaseDn,
-            BuildSearchFilter(identifier),
+            searchBase,
+            searchFilter,
             SearchScope.Subtree,
-            new[] { "distinguishedName", "sAMAccountName", "memberOf" });
+            new[] { "distinguishedName", "sAMAccountName", "uid", "memberOf" });
 
         var response = (SearchResponse)connection.SendRequest(request);
         var entry = response.Entries.Cast<SearchResultEntry>().FirstOrDefault();
@@ -105,6 +110,7 @@ public sealed class LdapCredentialValidator : INugetCredentialValidator
         return new LdapUserEntry(
             entry.DistinguishedName,
             entry.Attributes["sAMAccountName"]?[0]?.ToString(),
+            entry.Attributes["uid"]?[0]?.ToString(),
             GetGroupNames(entry.Attributes["memberOf"]));
     }
 
@@ -160,15 +166,20 @@ public sealed class LdapCredentialValidator : INugetCredentialValidator
         return connection;
     }
 
-    private static string BuildSearchFilter(LdapUserIdentifier identifier)
+    private static string BuildSearchFilter(LdapAuthenticationOptions ldap, LdapUserIdentifier identifier)
     {
+        if (!string.IsNullOrWhiteSpace(ldap?.UserSearchFilter))
+        {
+            return ldap.UserSearchFilter.Replace("%s", EscapeFilterValue(identifier.AccountName), StringComparison.Ordinal);
+        }
+
         var escapedAccountName = EscapeFilterValue(identifier.AccountName);
         if (!string.IsNullOrWhiteSpace(identifier.UserPrincipalName))
         {
-            return $"(|(sAMAccountName={escapedAccountName})(userPrincipalName={EscapeFilterValue(identifier.UserPrincipalName)}))";
+            return $"(|(sAMAccountName={escapedAccountName})(uid={escapedAccountName})(userPrincipalName={EscapeFilterValue(identifier.UserPrincipalName)}))";
         }
 
-        return $"(sAMAccountName={escapedAccountName})";
+        return $"(|(sAMAccountName={escapedAccountName})(uid={escapedAccountName}))";
     }
 
     private static string EscapeFilterValue(string value)
@@ -245,16 +256,19 @@ public sealed class LdapCredentialValidator : INugetCredentialValidator
 
     private sealed class LdapUserEntry
     {
-        public LdapUserEntry(string distinguishedName, string samAccountName, string[] groupNames)
+        public LdapUserEntry(string distinguishedName, string samAccountName, string uid, string[] groupNames)
         {
             DistinguishedName = distinguishedName;
             SamAccountName = samAccountName;
+            Uid = uid;
             GroupNames = groupNames ?? [];
         }
 
         public string DistinguishedName { get; }
 
         public string SamAccountName { get; }
+
+        public string Uid { get; }
 
         public string[] GroupNames { get; }
     }
