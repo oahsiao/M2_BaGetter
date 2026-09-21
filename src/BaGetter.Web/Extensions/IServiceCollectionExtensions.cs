@@ -5,6 +5,7 @@ using BaGetter.Core;
 using BaGetter.Web;
 using BaGetter.Web.Authentication;
 using BaGetter.Web.Helper;
+using BaGetter.Web.Admin;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -33,6 +34,8 @@ public static class IServiceCollectionExtensions
 
         services.AddHttpContextAccessor();
         services.AddTransient<IUrlGenerator, BaGetterUrlGenerator>();
+        services.AddTransient<IAdminPackageService, AdminPackageService>();
+        services.AddSingleton<IAdminAuditLog, FileAdminAuditLog>();
 
         services.AddSingleton(ApplicationVersionHelper.GetVersion());
 

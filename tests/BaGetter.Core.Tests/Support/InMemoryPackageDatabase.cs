@@ -55,6 +55,51 @@ public class InMemoryPackageDatabase : IPackageDatabase
         return Task.FromResult((IReadOnlyList<Package>)packages.ToList().AsReadOnly());
     }
 
+    public Task<IReadOnlyList<Package>> SearchAsync(
+        string query,
+        bool? listed,
+        int skip,
+        int take,
+        CancellationToken cancellationToken)
+    {
+        var packages = _packages.AsEnumerable();
+        if (!string.IsNullOrWhiteSpace(query))
+        {
+            packages = packages.Where(
+                p => p.Id.Contains(query, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (listed.HasValue)
+        {
+            packages = packages.Where(p => p.Listed == listed.Value);
+        }
+
+        return Task.FromResult<IReadOnlyList<Package>>(packages
+            .OrderBy(p => p.Id, StringComparer.OrdinalIgnoreCase)
+            .ThenByDescending(p => p.Published)
+            .Skip(skip)
+            .Take(take)
+            .ToList()
+            .AsReadOnly());
+    }
+
+    public Task<int> CountAsync(string query, bool? listed, CancellationToken cancellationToken)
+    {
+        var packages = _packages.AsEnumerable();
+        if (!string.IsNullOrWhiteSpace(query))
+        {
+            packages = packages.Where(
+                p => p.Id.Contains(query, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (listed.HasValue)
+        {
+            packages = packages.Where(p => p.Listed == listed.Value);
+        }
+
+        return Task.FromResult(packages.Count());
+    }
+
     public Task<Package> FindOrNullAsync(string id, NuGetVersion version, bool includeUnlisted, CancellationToken cancellationToken)
     {
         var package = _packages

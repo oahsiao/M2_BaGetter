@@ -332,6 +332,42 @@ To do so, you can insert the credentials in the `Authentication` section.
 
 - `Roles` controls role-based permissions (for example `Admin` for administration-only actions in the web UI such as package deletion).
 
+### Administration dashboard
+
+Users with the `Admin` role can open `/admin` to manage individual package versions.
+The dashboard supports search and listing-status filters, unlist/relist, permanent
+deletion, copy to a new package ID, and rename to a new package ID.
+
+- Permanent deletion removes both package metadata and stored package content.
+- Rename copies the package to the new ID and permanently deletes the source only
+  after the copy succeeds.
+- Signed packages cannot be copied or renamed because changing the package ID would
+  invalidate the signature.
+- When `IsReadOnlyMode` is enabled, the dashboard remains visible but all package
+  mutations are disabled.
+- Administrative actions are appended as JSON Lines to the path configured by
+  `Admin.AuditLogPath` (default: `App_Data/admin-audit.jsonl`). Relative paths
+  are resolved under the application's content root. The Docker image uses the
+  persistent path `/data/admin/admin-audit.jsonl`. Each entry
+  records the UTC time, actor, action, package, result, and client IP address.
+
+For Docker deployment on port 3007:
+
+```shell
+BAGETTER_ADMIN_PASSWORD="<strong-password>" docker compose up -d --build
+```
+
+The included Compose configuration stores packages, the SQLite database, symbols,
+and the administration audit log in the `bagetter-data` volume.
+
+The image restores packages from NuGet v3 by default. If that endpoint is blocked
+by a proxy or TLS inspection policy, set `NUGET_SOURCE` to an approved NuGet
+mirror when building the image. For example:
+
+```shell
+NUGET_SOURCE=https://www.nuget.org/api/v2/ BAGETTER_ADMIN_PASSWORD="<strong-password>" docker compose up -d --build
+```
+
 You can store a hashed password instead of plaintext:
 
 ```json

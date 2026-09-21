@@ -107,6 +107,8 @@ public class BaGetterOptions : IValidatableObject
 
     public NugetAuthenticationOptions Authentication { get; set; }
 
+    public AdminOptions Admin { get; set; } = new();
+
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         if (MaxPackageSizeGiB == 0)

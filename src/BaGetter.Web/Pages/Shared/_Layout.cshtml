@@ -87,6 +87,10 @@
                             {
                                 <li role="presentation"><a asp-area="" asp-page="/Statistics" role="tab" nav-link><span>@Localizer["Statistics"]</span></a></li>
                             }
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li role="presentation"><a asp-area="" asp-page="/Admin/Index" role="tab" nav-link><span>Admin</span></a></li>
+                            }
                             <li role="presentation">
                                 <a role="tab" href="https://www.bagetter.com/docs" target="_blank" rel="noopener noreferrer">
                                     <span>@Localizer["Documentation"]</span>
