@@ -70,7 +70,7 @@ jobs:
         run: dotnet test --verbosity normal
 
   release_zip:
-    if: ${{ github.repository == 'oahsiao/BaGetter' && (github.ref_type == 'tag' || inputs.tag != '') }}
+    if: ${{ github.repository == 'oahsiao/M2_BaGetter' && (github.ref_type == 'tag' || inputs.tag != '') }}
     needs: [version, verify, release_docker_image]
     name: Release BaGetter.zip to GitHub
     runs-on: ubuntu-latest
@@ -111,7 +111,7 @@ jobs:
           prerelease: ${{ contains(needs.version.outputs.RELEASE_VERSION, '-') }}
 
   release_docker_image:
-    if: ${{ github.repository == 'oahsiao/BaGetter' && (github.ref_type == 'tag' || inputs.tag != '') }}
+    if: ${{ github.repository == 'oahsiao/M2_BaGetter' && (github.ref_type == 'tag' || inputs.tag != '') }}
     needs: [version, verify]
     name: Release Docker image to GitHub Container Registry
     runs-on: ubuntu-latest
