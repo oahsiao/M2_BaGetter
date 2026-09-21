@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
@@ -81,15 +82,59 @@ public class FileStorageService : IStorageService
     {
         cancellationToken.ThrowIfCancellationRequested();
 
+        var fullPath = GetFullPath(path);
+
         try
         {
-            File.Delete(GetFullPath(path));
+            File.Delete(fullPath);
         }
         catch (DirectoryNotFoundException)
         {
         }
 
+        DeleteEmptyParentDirectories(fullPath);
         return Task.CompletedTask;
+    }
+
+    private void DeleteEmptyParentDirectories(string filePath)
+    {
+        var storePath = Path.TrimEndingDirectorySeparator(_storePath);
+        var directory = Directory.GetParent(filePath);
+
+        while (directory?.Parent != null &&
+               !PathsEqual(directory.Parent.FullName, storePath))
+        {
+            if (directory.Exists && directory.EnumerateFileSystemInfos().Any())
+            {
+                break;
+            }
+
+            try
+            {
+                directory.Delete(recursive: false);
+            }
+            catch (DirectoryNotFoundException)
+            {
+            }
+            catch (IOException) when (
+                directory.Exists &&
+                directory.EnumerateFileSystemInfos().Any())
+            {
+                break;
+            }
+
+            directory = directory.Parent;
+        }
+    }
+
+    private static bool PathsEqual(string left, string right)
+    {
+        return string.Equals(
+            Path.TrimEndingDirectorySeparator(left),
+            Path.TrimEndingDirectorySeparator(right),
+            OperatingSystem.IsWindows()
+                ? StringComparison.OrdinalIgnoreCase
+                : StringComparison.Ordinal);
     }
 
     private string GetFullPath(string path)

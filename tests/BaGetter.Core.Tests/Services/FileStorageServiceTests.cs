@@ -176,6 +176,57 @@ public class FileStorageServiceTests
         }
 
         [Fact]
+        public async Task DeletesEmptyParentDirectoriesButPreservesStorageNamespace()
+        {
+            var relativePath = Path.Combine(
+                "packages",
+                "example.package",
+                "1.0.0",
+                "example.package.1.0.0.nupkg");
+            var path = Path.Combine(_storePath, relativePath);
+            var namespacePath = Path.Combine(_storePath, "packages");
+            var packagePath = Path.Combine(namespacePath, "example.package");
+            var versionPath = Path.Combine(packagePath, "1.0.0");
+
+            Directory.CreateDirectory(versionPath);
+            await File.WriteAllTextAsync(path, "package");
+
+            await _target.DeleteAsync(relativePath);
+
+            Assert.False(File.Exists(path));
+            Assert.False(Directory.Exists(versionPath));
+            Assert.False(Directory.Exists(packagePath));
+            Assert.True(Directory.Exists(namespacePath));
+        }
+
+        [Fact]
+        public async Task KeepsParentDirectoriesWhenAnotherFileExists()
+        {
+            var versionPath = Path.Combine(
+                _storePath,
+                "packages",
+                "example.package",
+                "1.0.0");
+            var packagePath = Path.Combine(versionPath, "package.nupkg");
+            var nuspecPath = Path.Combine(versionPath, "package.nuspec");
+
+            Directory.CreateDirectory(versionPath);
+            await File.WriteAllTextAsync(packagePath, "package");
+            await File.WriteAllTextAsync(nuspecPath, "nuspec");
+
+            await _target.DeleteAsync(
+                Path.Combine(
+                    "packages",
+                    "example.package",
+                    "1.0.0",
+                    "package.nupkg"));
+
+            Assert.False(File.Exists(packagePath));
+            Assert.True(File.Exists(nuspecPath));
+            Assert.True(Directory.Exists(versionPath));
+        }
+
+        [Fact]
         public async Task NoAccessOutsideStorePath()
         {
             foreach (var path in OutsideStorePathData)

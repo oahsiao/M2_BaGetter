@@ -342,7 +342,8 @@ Open `/admin/login` in a browser and sign in with an existing Basic or LDAP acco
 that has the `Admin` role. A secure, HTTP-only administration cookie is created for
 the browser session. NuGet clients continue to use Basic authentication.
 
-- Permanent deletion removes both package metadata and stored package content.
+- Permanent deletion removes package metadata and stored package content, then
+  removes empty version and package directories from file-system storage.
 - Rename copies the package to the new ID and permanently deletes the source only
   after the copy succeeds.
 - Signed packages cannot be copied or renamed because changing the package ID would
