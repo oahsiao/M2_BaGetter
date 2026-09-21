@@ -16,6 +16,9 @@
         <div class="admin-user">
             <span class="ms-Icon ms-Icon--Contact" aria-hidden="true"></span>
             <span>@User.Identity?.Name</span>
+            <form method="post" asp-page="/Admin/Login" asp-page-handler="Logout">
+                <button type="submit" class="btn btn-link btn-sm">Sign out</button>
+            </form>
         </div>
     </div>
 

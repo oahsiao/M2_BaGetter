@@ -29,7 +29,11 @@ public static class IServiceCollectionExtensions
         services.AddLocalization(options => options.ResourcesPath = "Resources");
 
         services
-            .AddRazorPages()
+            .AddRazorPages(options =>
+            {
+                options.Conventions.AuthorizeFolder("/", AuthenticationConstants.NugetUserPolicy);
+                options.Conventions.AllowAnonymousToPage("/Admin/Login");
+            })
             .AddViewLocalization();
 
         services.AddHttpContextAccessor();

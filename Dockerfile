@@ -53,6 +53,7 @@ ENV Database__Type=Sqlite
 ENV Database__ConnectionString="Data Source=/data/db/bagetter.db"
 ENV Admin__AuditLogPath=/data/admin/admin-audit.jsonl
 ENV ASPNETCORE_URLS=http://+:3007
+ENV HOME=/data
 LABEL org.opencontainers.image.source="https://github.com/bagetter/BaGetter"
 # copy default folders
 COPY --from=publish /data /data

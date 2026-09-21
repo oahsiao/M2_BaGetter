@@ -15,7 +15,9 @@ using NuGet.Versioning;
 namespace BaGetter.Web.Pages.Admin;
 
 [Authorize(
-    AuthenticationSchemes = AuthenticationConstants.NugetBasicAuthenticationScheme,
+    AuthenticationSchemes =
+        AuthenticationConstants.NugetBasicAuthenticationScheme + "," +
+        AuthenticationConstants.AdminCookieAuthenticationScheme,
     Policy = AuthenticationConstants.AdminPolicy)]
 public sealed class IndexModel : PageModel
 {

@@ -1,0 +1,33 @@
+@page "/admin/login"
+@model BaGetter.Web.Pages.Admin.LoginModel
+@{
+    ViewData["Title"] = "Admin sign in";
+}
+
+<div class="admin-login-shell">
+    <section class="admin-login-card" aria-labelledby="adminLoginTitle">
+        <span class="admin-eyebrow">PACKAGE OPERATIONS</span>
+        <h1 id="adminLoginTitle">Admin sign in</h1>
+        <p>Use an account assigned to the Admin role.</p>
+
+        @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger" role="alert">@Model.ErrorMessage</div>
+        }
+
+        <form method="post">
+            <input type="hidden" asp-for="ReturnUrl" />
+            <div class="form-group">
+                <label asp-for="Username"></label>
+                <input asp-for="Username" class="form-control" autocomplete="username" autofocus />
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password"></label>
+                <input asp-for="Password" class="form-control" autocomplete="current-password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+        </form>
+    </section>
+</div>

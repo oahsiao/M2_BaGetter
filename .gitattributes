@@ -26,6 +26,7 @@
 *.java text=auto
 *.html text=auto
 *.htm text=auto
+*.cshtml text eol=lf
 *.css text=auto
 *.scss text=auto
 *.sass text=auto

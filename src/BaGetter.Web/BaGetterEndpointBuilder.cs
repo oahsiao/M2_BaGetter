@@ -1,7 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
-using BaGetter.Authentication;
 using BaGetter.Web;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Constraints;
@@ -13,13 +11,7 @@ public class BaGetterEndpointBuilder
 {
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
-        endpoints
-            .MapRazorPages()
-            .RequireAuthorization(new AuthorizeAttribute
-            {
-                AuthenticationSchemes = AuthenticationConstants.NugetBasicAuthenticationScheme,
-                Policy = AuthenticationConstants.NugetUserPolicy,
-            });
+        endpoints.MapRazorPages();
 
         MapServiceIndexRoutes(endpoints);
         MapPackagePublishRoutes(endpoints);

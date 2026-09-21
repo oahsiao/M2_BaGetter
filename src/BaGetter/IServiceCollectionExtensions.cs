@@ -2,6 +2,7 @@ using BaGetter.Authentication;
 using BaGetter.Core;
 using BaGetter.Web.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -21,6 +22,17 @@ internal static class IServiceCollectionExtensions
                 options.DefaultAuthenticateScheme = AuthenticationConstants.NugetBasicAuthenticationScheme;
                 options.DefaultChallengeScheme = AuthenticationConstants.NugetBasicAuthenticationScheme;
             }
+        })
+        .AddCookie(AuthenticationConstants.AdminCookieAuthenticationScheme, options =>
+        {
+            options.LoginPath = "/admin/login";
+            options.AccessDeniedPath = "/admin/login";
+            options.Cookie.Name = "BaGetter.Admin";
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
+            options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest;
+            options.ExpireTimeSpan = TimeSpan.FromHours(8);
+            options.SlidingExpiration = true;
         });
 
         return app;
@@ -38,7 +50,9 @@ internal static class IServiceCollectionExtensions
             options.AddPolicy(AuthenticationConstants.AdminPolicy, policy =>
             {
                 policy
-                    .AddAuthenticationSchemes(AuthenticationConstants.NugetBasicAuthenticationScheme)
+                    .AddAuthenticationSchemes(
+                        AuthenticationConstants.NugetBasicAuthenticationScheme,
+                        AuthenticationConstants.AdminCookieAuthenticationScheme)
                     .RequireAuthenticatedUser()
                     .RequireRole(AuthenticationConstants.AdminRole);
             });

@@ -338,6 +338,10 @@ Users with the `Admin` role can open `/admin` to manage individual package versi
 The dashboard supports search and listing-status filters, unlist/relist, permanent
 deletion, copy to a new package ID, and rename to a new package ID.
 
+Open `/admin/login` in a browser and sign in with an existing Basic or LDAP account
+that has the `Admin` role. A secure, HTTP-only administration cookie is created for
+the browser session. NuGet clients continue to use Basic authentication.
+
 - Permanent deletion removes both package metadata and stored package content.
 - Rename copies the package to the new ID and permanently deletes the source only
   after the copy succeeds.
@@ -358,7 +362,8 @@ BAGETTER_ADMIN_PASSWORD="<strong-password>" docker compose up -d --build
 ```
 
 The included Compose configuration stores packages, the SQLite database, symbols,
-and the administration audit log in the `bagetter-data` volume.
+the administration audit log, and browser authentication keys in the `bagetter-data`
+volume.
 
 The image restores packages from NuGet v3 by default. If that endpoint is blocked
 by a proxy or TLS inspection policy, set `NUGET_SOURCE` to an approved NuGet
